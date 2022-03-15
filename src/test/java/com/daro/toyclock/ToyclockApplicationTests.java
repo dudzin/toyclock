@@ -1,5 +1,6 @@
 package com.daro.toyclock;
 
+import com.daro.toyclock.registration.CallbackRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ class ToyclockApplicationTests {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private CallbackRepository callbackRepository;
 
     @Test
     @DisplayName("fail to register when parameters are missing")
@@ -41,12 +44,35 @@ class ToyclockApplicationTests {
 
     @Test
     @DisplayName("fail to register on url duplicate")
-    void test2() {
+    void test2() throws Exception {
+
+        givenCallbackAlreadyExists("http://asd");
+
+        mockMvc.perform(
+                        post("/register")
+                                .content("{" +
+                                        "\"callback\":\"http://asd\"," +
+                                        "\"interval\":\"xxxx\"" +
+                                        "}")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(
+                        status().isBadRequest()
+                )
+                .andExpect(jsonPath("$.errors",
+                        hasItems(
+                                "callback is already registered"
+                        )
+                ));
     }
+
 
     @Test
     @DisplayName("on registration success trigger callback")
     void test3() {
     }
 
+    private void givenCallbackAlreadyExists(String callback) {
+        callbackRepository.save(callback, "");
+    }
 }

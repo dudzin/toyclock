@@ -1,19 +1,23 @@
 package com.daro.toyclock.registration;
 
+import com.daro.toyclock.errors.CallbackException;
 import com.daro.toyclock.errors.Errors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 public class RegistrationController {
 
+    private final CallbackRepository callbackRepository;
+
     @PostMapping("/register")
-    public Map test(@RequestBody @Valid RegistrationRequest registrationRequest) throws IllegalAccessException {
-        return Map.of();
+    public void test(@RequestBody @Valid RegistrationRequest registrationRequest) throws IllegalAccessException {
+        callbackRepository.save(registrationRequest.getCallback(), registrationRequest.getInterval());
     }
 
 
@@ -27,10 +31,17 @@ public class RegistrationController {
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String errorMessage = error.getDefaultMessage();
             errors.addError(errorMessage);
-
         });
         return errors;
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(CallbackException.class)
+    public Errors handleExceptions(
+            CallbackException ex) {
+        var errors = new Errors();
+        errors.addError(ex.getMessage());
+        return errors;
+    }
 
 }
