@@ -17,6 +17,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,7 +42,7 @@ class ToyclockApplicationTests {
     @DisplayName("fail to register when parameters are missing")
     void test1() throws Exception {
         mockMvc.perform(
-                        post("/register")
+                        post("/clock")
                                 .content("{}")
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -63,7 +64,7 @@ class ToyclockApplicationTests {
         givenCallbackAlreadyExists("http://asd");
 
         mockMvc.perform(
-                        post("/register")
+                        post("/clock")
                                 .content("{" +
                                         "\"callback\":\"http://asd\"," +
                                         "\"interval\":5" +
@@ -85,7 +86,7 @@ class ToyclockApplicationTests {
     @DisplayName("on registration success trigger callback")
     void test3() throws Exception {
         mockMvc.perform(
-                        post("/register")
+                        post("/clock")
                                 .content("{" +
                                         "\"callback\":\"http://asd\"," +
                                         "\"interval\":5" +
@@ -97,6 +98,31 @@ class ToyclockApplicationTests {
                 );
         // we could have more sophisticated verification mechanism here, like starting up some server to catch actual requests
         verify(restTemplate, times(1)).postForLocation(anyString(), anyString());
+    }
+
+    @Test
+    @DisplayName("Cannot deregister callback if it wasn't registered before")
+    void test4() throws Exception {
+        mockMvc.perform(
+                        delete("/clock")
+                                .content("{" +
+                                        "\"callback\":\"http://asd\""  +
+                                        "}")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(
+                        status().isBadRequest()
+                )
+                .andExpect(jsonPath("$.errors",
+                        hasItems(
+                                "callback unknown"
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("Can deregister callback")
+    void test5() throws Exception {
     }
 
     private void givenCallbackAlreadyExists(String callback) {

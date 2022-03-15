@@ -29,7 +29,20 @@ public class ClockRepository {
         webhookSender.send(callback);
     }
 
+
+    public void delete(String callback) {
+        if (!store.containsKey(callback)) {
+            throw new ClockException("callback unknown");
+        }
+        store.remove(callback);
+    }
+
+
     public void clean() {
         store.clear();
+    }
+
+    public int count() {
+        return store.size();
     }
 }

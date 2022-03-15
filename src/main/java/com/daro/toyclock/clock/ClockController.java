@@ -14,9 +14,15 @@ public class ClockController {
 
     private final ClockRepository clockRepository;
 
-    @PostMapping("/register")
-    public void test(@RequestBody @Valid RegistrationRequest registrationRequest) throws IllegalAccessException {
+    @PostMapping("/clock")
+    public void register(@RequestBody @Valid RegistrationRequest registrationRequest)  {
         clockRepository.save(registrationRequest.getCallback(), registrationRequest.getInterval());
+    }
+
+
+    @DeleteMapping("/clock")
+    public void delete(@RequestBody @Valid DeRegistrationRequest deRegistrationRequest)  {
+        clockRepository.delete(deRegistrationRequest.getCallback());
     }
 
 
