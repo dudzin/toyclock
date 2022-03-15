@@ -1,6 +1,6 @@
 package com.daro.toyclock;
 
-import com.daro.toyclock.registration.CallbackRepository;
+import com.daro.toyclock.clock.ClockRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ class ToyclockApplicationTests {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    private CallbackRepository callbackRepository;
+    private ClockRepository clockRepository;
 
     @Test
     @DisplayName("fail to register when parameters are missing")
@@ -73,6 +73,6 @@ class ToyclockApplicationTests {
     }
 
     private void givenCallbackAlreadyExists(String callback) {
-        callbackRepository.save(callback, "");
+        clockRepository.save(callback, "");
     }
 }

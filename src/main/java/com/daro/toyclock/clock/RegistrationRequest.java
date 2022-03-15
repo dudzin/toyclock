@@ -1,4 +1,4 @@
-package com.daro.toyclock.registration;
+package com.daro.toyclock.clock;
 
 import lombok.Getter;
 

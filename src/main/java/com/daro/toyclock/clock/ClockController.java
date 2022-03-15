@@ -1,6 +1,5 @@
-package com.daro.toyclock.registration;
+package com.daro.toyclock.clock;
 
-import com.daro.toyclock.errors.CallbackException;
 import com.daro.toyclock.errors.Errors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,13 +10,13 @@ import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
-public class RegistrationController {
+public class ClockController {
 
-    private final CallbackRepository callbackRepository;
+    private final ClockRepository clockRepository;
 
     @PostMapping("/register")
     public void test(@RequestBody @Valid RegistrationRequest registrationRequest) throws IllegalAccessException {
-        callbackRepository.save(registrationRequest.getCallback(), registrationRequest.getInterval());
+        clockRepository.save(registrationRequest.getCallback(), registrationRequest.getInterval());
     }
 
 
@@ -36,9 +35,9 @@ public class RegistrationController {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(CallbackException.class)
+    @ExceptionHandler(ClockException.class)
     public Errors handleExceptions(
-            CallbackException ex) {
+            ClockException ex) {
         var errors = new Errors();
         errors.addError(ex.getMessage());
         return errors;
