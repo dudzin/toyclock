@@ -18,13 +18,15 @@ public class ClockScheduler {
     private final ClockRepository clockRepository;
     private final WebhookSender sender;
 
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(cron = "*/1 * * * * *")
     public void execute() {
         var callbacks = clockRepository.copy();
-        var timeNow = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        log.debug("Check time");
+        var timeNow = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() / 1000;
         callbacks.forEach((callback, clock) -> {
-            var startedInMili = clock.getStartedAt().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-            if ((timeNow - startedInMili) % clock.getInterval() * 1000 == 0) {
+            var startedInSeconds = clock.getStartedAt().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() / 1000;
+            log.debug("TimeNow {}, clock interval {}", timeNow - startedInSeconds, clock.getInterval());
+            if ((timeNow - startedInSeconds) % clock.getInterval() == 0) {
                 log.info("Time is up , send to {}", callback);
                 sender.send(callback);
             }
