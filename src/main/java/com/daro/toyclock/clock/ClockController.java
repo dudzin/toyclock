@@ -19,6 +19,10 @@ public class ClockController {
         clockRepository.save(registrationRequest.getCallback(), registrationRequest.getInterval());
     }
 
+    @PutMapping("/clock")
+    public void update(@RequestBody @Valid RegistrationRequest registrationRequest)  {
+        clockRepository.update(registrationRequest.getCallback(), registrationRequest.getInterval());
+    }
 
     @DeleteMapping("/clock")
     public void delete(@RequestBody @Valid DeRegistrationRequest deRegistrationRequest)  {

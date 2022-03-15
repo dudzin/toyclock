@@ -17,8 +17,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -138,6 +137,44 @@ class ToyclockApplicationTests {
                 );
 
         assertThat(clockRepository.count()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("Cannot update callback interval when new interval is not between 5s and 4 hours")
+    void test6() throws Exception {
+        givenCallbackAlreadyExists("http://asd");
+        assertThat(clockRepository.count()).isEqualTo(1);
+
+        mockMvc.perform(
+                        put("/clock")
+                                .content("{" +
+                                        "\"callback\":\"http://asd\"," +
+                                        "\"interval\":5" +
+                                        "}")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(
+                        status().isOk()
+                );
+    }
+
+    @Test
+    @DisplayName("Can update callback interval")
+    void test7() throws Exception {
+        givenCallbackAlreadyExists("http://asd");
+        assertThat(clockRepository.count()).isEqualTo(1);
+
+        mockMvc.perform(
+                        put("/clock")
+                                .content("{" +
+                                        "\"callback\":\"http://asd\"," +
+                                        "\"interval\":5" +
+                                        "}")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(
+                        status().isOk()
+                );
     }
 
     private void givenCallbackAlreadyExists(String callback) {

@@ -1,13 +1,14 @@
 package com.daro.toyclock.clock;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 
 @Data
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class Clock {
     private final LocalDate startedAt;
-    private final Integer interval;
+    private Integer interval;
 }

@@ -30,11 +30,22 @@ public class ClockRepository {
     }
 
 
+    public void update(String callback, Integer interval) {
+        if (!store.containsKey(callback)) {
+            throw new ClockException("callback unknown");
+        }
+        var clock = store.get(callback);
+        clock.setInterval(interval);
+        store.put(callback, clock);
+        log.info("Callback updated for {}, with new interval of {}s", callback, interval);
+    }
+
     public void delete(String callback) {
         if (!store.containsKey(callback)) {
             throw new ClockException("callback unknown");
         }
         store.remove(callback);
+        log.info("Callback deleted for {}", callback);
     }
 
 
