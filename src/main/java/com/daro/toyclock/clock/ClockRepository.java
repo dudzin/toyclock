@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -23,7 +25,7 @@ public class ClockRepository {
         if (store.containsKey(callback)) {
             throw new ClockException("callback is already registered");
         }
-        var clock = new Clock(LocalDate.now(), interval);
+        var clock = new Clock(LocalDateTime.now(), interval);
         store.put(callback, clock);
         log.info("New callback created for {}, with interval of {}s", callback, interval);
         webhookSender.send(callback);
@@ -55,5 +57,9 @@ public class ClockRepository {
 
     public int count() {
         return store.size();
+    }
+
+    public HashMap<String, Clock> copy() {
+        return new HashMap<>(store);
     }
 }
