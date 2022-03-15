@@ -13,10 +13,15 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class WebhookSender {
 
+    // In this simple case it's more optimal to just use a single strin and replace values, rather than work around
+    // json objects
+    private final static String templateString = "{\"timenow\":\"${timenow}\"}";
+
     private final RestTemplate restTemplate;
 
     public void send(String callback) {
-        restTemplate.postForLocation(callback, LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+        restTemplate.postForLocation(callback, templateString.replace("${timenow}",
+                LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME)));
         log.info("Sent time to {}", callback);
     }
 }
