@@ -12,11 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.RestTemplate;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -106,7 +106,7 @@ class ToyclockApplicationTests {
         mockMvc.perform(
                         delete("/clock")
                                 .content("{" +
-                                        "\"callback\":\"http://asd\""  +
+                                        "\"callback\":\"http://asd\"" +
                                         "}")
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -123,6 +123,21 @@ class ToyclockApplicationTests {
     @Test
     @DisplayName("Can deregister callback")
     void test5() throws Exception {
+        givenCallbackAlreadyExists("http://asd");
+        assertThat(clockRepository.count()).isEqualTo(1);
+
+        mockMvc.perform(
+                        delete("/clock")
+                                .content("{" +
+                                        "\"callback\":\"http://asd\"" +
+                                        "}")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(
+                        status().isOk()
+                );
+
+        assertThat(clockRepository.count()).isEqualTo(0);
     }
 
     private void givenCallbackAlreadyExists(String callback) {
