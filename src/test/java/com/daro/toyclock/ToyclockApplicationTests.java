@@ -1,15 +1,22 @@
 package com.daro.toyclock;
 
 import com.daro.toyclock.clock.ClockRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.client.RestTemplate;
 
 import static org.hamcrest.Matchers.hasItems;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -18,10 +25,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class ToyclockApplicationTests {
 
+    @MockBean
+    private RestTemplate restTemplate;
     @Autowired
     private MockMvc mockMvc;
     @Autowired
     private ClockRepository clockRepository;
+
+    @AfterEach
+    public void cleanup() {
+        clockRepository.clean();
+    }
 
     @Test
     @DisplayName("fail to register when parameters are missing")
@@ -52,7 +66,7 @@ class ToyclockApplicationTests {
                         post("/register")
                                 .content("{" +
                                         "\"callback\":\"http://asd\"," +
-                                        "\"interval\":\"xxxx\"" +
+                                        "\"interval\":5" +
                                         "}")
                                 .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -69,10 +83,23 @@ class ToyclockApplicationTests {
 
     @Test
     @DisplayName("on registration success trigger callback")
-    void test3() {
+    void test3() throws Exception {
+        mockMvc.perform(
+                        post("/register")
+                                .content("{" +
+                                        "\"callback\":\"http://asd\"," +
+                                        "\"interval\":5" +
+                                        "}")
+                                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(
+                        status().isOk()
+                );
+        // we could have more sophisticated verification mechanism here, like starting up some server to catch actual requests
+        verify(restTemplate, times(1)).postForLocation(anyString(), anyString());
     }
 
     private void givenCallbackAlreadyExists(String callback) {
-        clockRepository.save(callback, "");
+        clockRepository.save(callback, 6);
     }
 }
